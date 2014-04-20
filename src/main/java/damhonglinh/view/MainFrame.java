@@ -88,6 +88,7 @@ public class MainFrame extends JFrame implements Observer {
                 case Model.UPDATE_USER_IDEAS_LIST:
                     System.out.println("UPDATE_USER_IDEAS_LIST ");
                     ideaTab.refreshUserIdeaList();
+                    organizeTab.refreshUserIdeaList();
                     break;
             }
         }

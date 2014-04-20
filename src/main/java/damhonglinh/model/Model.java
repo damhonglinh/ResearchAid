@@ -53,7 +53,7 @@ public class Model extends Observable {
             UserIdea.setCurId(input.readInt());
 
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.err.println(e.toString());
             journals = new HashMap<Integer, Journal>();
             journalIdeas = new HashMap<Integer, JournalIdea>();
             userIdeas = new HashMap<Integer, UserIdea>();
@@ -88,7 +88,7 @@ public class Model extends Observable {
             output.writeInt(JournalIdea.getCurId());
             output.writeInt(UserIdea.getCurId());
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         } finally {
             try {
                 if (output != null) output.close();

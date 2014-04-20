@@ -111,6 +111,7 @@ public class IdeaListView extends JPanel {
         addAllIdea();
         center.revalidate();
         center.repaint();
+        activeUserIdea = null;
     }
 
     protected UserIdea getActiveUserIdea() {
