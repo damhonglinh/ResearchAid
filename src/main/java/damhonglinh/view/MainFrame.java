@@ -2,18 +2,21 @@ package damhonglinh.view;
 
 import damhonglinh.model.Model;
 import damhonglinh.view.journal.JournalTab;
+import damhonglinh.view.organize.OrganizeTab;
 import damhonglinh.view.useridea.IdeaTab;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * User: Dam Linh
  * Date: 17/04/14
  */
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements Observer {
 
     private OrganizeTab organizeTab;
     private IdeaTab ideaTab;
@@ -32,6 +35,7 @@ public class MainFrame extends JFrame {
         setBackground(Color.WHITE);
 
         Model model = new Model();
+        model.addObserver(this);
 
         organizeTab = new OrganizeTab(model);
         ideaTab = new IdeaTab(model);
@@ -48,8 +52,8 @@ public class MainFrame extends JFrame {
         TabButton tabButton = new TabButton(this);
         add(tabButton, BorderLayout.NORTH);
 
-
         showIdeaTab();
+        showOrganizeTab();
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), "exit");
         getRootPane().getActionMap().put("exit", new AbstractAction() {
             @Override
@@ -64,6 +68,32 @@ public class MainFrame extends JFrame {
 
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof String) {
+            String s = (String) arg;
+            switch (s) {
+                case Model.UPDATE_JOURNAL_IDEAS_LIST:
+                    System.out.println("UPDATE_JOURNAL_IDEAS_LIST ");
+                    ideaTab.refreshJournalIdeaList();
+                    journalTab.refreshJournalIdeaList();
+                    break;
+
+                case Model.UPDATE_JOURNALS_LIST:
+                    System.out.println("UPDATE_JOURNALS_LIST ");
+                    ideaTab.refreshJournalComboBox();
+                    journalTab.refreshJournalList();
+                    break;
+
+                case Model.UPDATE_USER_IDEAS_LIST:
+                    System.out.println("UPDATE_USER_IDEAS_LIST ");
+                    ideaTab.refreshUserIdeaList();
+                    break;
+            }
+        }
+    }
+
+    //region showXXXTab
     protected void showOrganizeTab() {
         cardCenter.show(center, "organizeTab");
     }
@@ -75,4 +105,5 @@ public class MainFrame extends JFrame {
     protected void showJournalTab() {
         cardCenter.show(center, "journalTab");
     }
+    //endregion
 }

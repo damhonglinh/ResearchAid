@@ -1,8 +1,7 @@
-package damhonglinh.view.journal;
+package damhonglinh.view.organize;
 
-import damhonglinh.model.Journal;
 import damhonglinh.model.Model;
-import damhonglinh.view.KulButton;
+import damhonglinh.model.UserIdea;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -18,20 +17,20 @@ import java.util.Map;
 
 /**
  * User: Dam Linh
- * Date: 17/04/14
+ * Date: 19/04/14
  */
-public class JournalListView extends JPanel {
+public class IdeaListView extends JPanel {
 
-    private JournalTab journalTab;
-    private JLabel title = new JLabel("All Journals");
+    private OrganizeTab organizeTab;
+    private JLabel title = new JLabel("All Ideas");
     private Model model;
     private JScrollPane scroll;
     private Box center;
-    private KulButton addBut;
     private int width;
+    private UserIdea activeUserIdea;
 
-    public JournalListView(Model model, JournalTab journalTab) {
-        this.journalTab = journalTab;
+    public IdeaListView(Model model, OrganizeTab organizeTab) {
+        this.organizeTab = organizeTab;
         this.model = model;
 
         setLayout(new BorderLayout(1, 10));
@@ -52,46 +51,27 @@ public class JournalListView extends JPanel {
         scroll.getVerticalScrollBar().setUnitIncrement(20);
 
         center.setAlignmentY(0.5f);
-
-        addBut = new KulButton("New", false);
-        addBut.setPreferredSize(new Dimension(100, 30));
-        addBut.setMaximumSize(new Dimension(100, 30));
-        addBut.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                addNewJournal();
-            }
-        });
-
         add(title, BorderLayout.NORTH);
         add(scroll);
-        add(addBut, BorderLayout.SOUTH);
 
-        drawAllJournals();
+        addAllIdea();
     }
 
-    private void drawAllJournals() {
-        HashMap<Integer, Journal> journals = model.getJournals();
-        Iterator<Map.Entry<Integer, Journal>> iter = journals.entrySet().iterator();
+    private void addAllIdea() {
+        HashMap<Integer, UserIdea> ideas = model.getUserIdeas();
+        Iterator<Map.Entry<Integer, UserIdea>> iter = ideas.entrySet().iterator();
 
         while (iter.hasNext()) {
-            Map.Entry<Integer, Journal> entry = iter.next();
+            Map.Entry<Integer, UserIdea> entry = iter.next();
 
-            final Journal j = entry.getValue();
-            final JTextArea label = createTextArea(center, j.getTitle() + ". Author: " + j.getAuthor());
+            final UserIdea ui = entry.getValue();
+            final JTextArea label = createTextArea(center, ui.getName());
 
             label.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
                     if (SwingUtilities.isLeftMouseButton(e)) {
-                        journalTab.showJournalIdea(j);
-                    } else if (SwingUtilities.isRightMouseButton(e)) {
-                        int input = JOptionPane.showConfirmDialog(JournalListView.this,
-                                "Delete this journal?", "Delete this journal? " +
-                                "All ideas of this journal will be deleted forever!!!", JOptionPane.OK_CANCEL_OPTION);
-                        if (input == JOptionPane.OK_OPTION) {
-                            model.deleteJournal(j);
-                        }
+                        activeUserIdea = ui;
                     }
                 }
 
@@ -126,14 +106,14 @@ public class JournalListView extends JPanel {
     }
     //endregion
 
-    private void addNewJournal() {
-        new NewJournalFrame(model).setVisible(true);
-    }
-
-    protected void refreshJournalList() {
+    protected void refreshUserList() {
         center.removeAll();
-        drawAllJournals();
+        addAllIdea();
         center.revalidate();
         center.repaint();
+    }
+
+    protected UserIdea getActiveUserIdea() {
+        return activeUserIdea;
     }
 }

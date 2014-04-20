@@ -83,7 +83,15 @@ public class IdeaListView extends JPanel {
             label.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
-                    ideaTab.showJournalIdea(ui);
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        ideaTab.showJournalIdea(ui);
+                    } else if (SwingUtilities.isRightMouseButton(e)) {
+                        int input = JOptionPane.showConfirmDialog(IdeaListView.this,
+                                "Delete this idea tag?", "Delete this idea tag?", JOptionPane.OK_CANCEL_OPTION);
+                        if (input == JOptionPane.OK_OPTION) {
+                            model.deleteUserIdea(ui);
+                        }
+                    }
                 }
 
                 @Override
@@ -93,6 +101,7 @@ public class IdeaListView extends JPanel {
 
                 @Override
                 public void mouseExited(MouseEvent e) {
+//                    if (ideaTab.getUserIdea() != null && ideaTab.getUserIdea().getId() == ui.getId()) return;
                     label.setBorder(new EmptyBorder(1, 1, 1, 1));
                 }
             });
@@ -102,14 +111,14 @@ public class IdeaListView extends JPanel {
     //region helper method
     private JTextArea createTextArea(JComponent parent, String text) {
         JTextArea textArea = new JTextArea(text, 3, 10);
-
         textArea.setEditable(false);
-//        textArea.setBorder(new EmptyBorder(1, 1, 1, 1));
 
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.getViewport().setBackground(Color.WHITE);
         scroll.getVerticalScrollBar().setUnitIncrement(20);
         scroll.setBorder(null);
+        scroll.setMinimumSize(new Dimension(50, 150));
+        scroll.setPreferredSize(new Dimension(50, 150));
 
         parent.add(scroll);
 
@@ -119,5 +128,12 @@ public class IdeaListView extends JPanel {
 
     private void addNewUserIdea() {
         new NewUserIdeaFrame(model).setVisible(true);
+    }
+
+    protected void refreshUserList() {
+        center.removeAll();
+        addAllIdea();
+        center.revalidate();
+        center.repaint();
     }
 }

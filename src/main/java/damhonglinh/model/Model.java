@@ -3,13 +3,19 @@ package damhonglinh.model;
 import javax.swing.*;
 import java.io.*;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Observable;
 
 /**
  * User: Dam Linh
  * Date: 17/04/14
  */
-public class Model {
+public class Model extends Observable {
 
+    public static final String UPDATE_USER_IDEAS_LIST = "userIdeaList";
+    public static final String UPDATE_JOURNALS_LIST = "journalList";
+    public static final String UPDATE_JOURNAL_IDEAS_LIST = "journalIdeaList";
     public static final String APP_NAME = "Research Aid";
     private File dataFile;
     private HashMap<Integer, Journal> journals;
@@ -95,18 +101,19 @@ public class Model {
     public Journal createJournal(String title, String author, String reference) {
         Journal j = new Journal(title, author);
         j.setReference(reference);
-
         journals.put(j.getId(), j);
         saveData();
 
+        updateJournalList();
         return j;
     }
 
     public JournalIdea createJournalIdea(Journal journal, String text, String implication) {
         JournalIdea ji = new JournalIdea(journal, text, implication);
-
         journalIdeas.put(ji.getId(), ji);
         saveData();
+
+        updateJournalIdeasList();
         return ji;
     }
 
@@ -114,14 +121,65 @@ public class Model {
         UserIdea ui = new UserIdea(name);
         userIdeas.put(ui.getId(), ui);
         saveData();
+
+        updateUserIdeasList();
         return ui;
     }
     //endregion
 
     public void addJournalIdeaToUserIdea(UserIdea ui, JournalIdea ji) {
         ji.getUserIdeas().put(ui.getId(), ui);
+        saveData();
+        updateJournalIdeasList();
     }
 
+    public void removeJournalIdeaFromUserIdea(UserIdea ui, JournalIdea ji) {
+        ji.getUserIdeas().remove(ui.getId());
+        saveData();
+        updateJournalIdeasList();
+    }
+
+    public void deleteJournal(Journal j) {
+        Iterator<Map.Entry<Integer, JournalIdea>> iter = journalIdeas.entrySet().iterator();
+        while (iter.hasNext()) {
+            JournalIdea ji = iter.next().getValue();
+            if (ji.getJournal().getId() == j.getId()) {
+                iter.remove();
+            }
+        }
+
+        journals.remove(j.getId());
+        saveData();
+
+        updateJournalIdeasList();
+        updateJournalList();
+    }
+
+    public void deleteUserIdea(UserIdea ui) {
+        Iterator<Map.Entry<Integer, JournalIdea>> iterJI = journalIdeas.entrySet().iterator();
+        while (iterJI.hasNext()) {
+            JournalIdea ji = iterJI.next().getValue();
+            if (ji.getUserIdeas().containsKey(ui.getId())) {
+                ji.getUserIdeas().remove(ui.getId());
+            }
+        }
+
+        userIdeas.remove(ui.getId());
+
+        saveData();
+
+        updateJournalIdeasList();
+        updateUserIdeasList();
+    }
+
+    public void deleteJournalIdea(JournalIdea ji) {
+        journalIdeas.remove(ji.getId());
+        saveData();
+
+        updateJournalIdeasList();
+    }
+
+    //region getters
     public HashMap<Integer, Journal> getJournals() {
         return journals;
     }
@@ -133,8 +191,22 @@ public class Model {
     public HashMap<Integer, UserIdea> getUserIdeas() {
         return userIdeas;
     }
+    //endregion
 
-    public void refreshJournalList() {
-
+    //region update methods
+    public void updateJournalList() {
+        setChanged();
+        notifyObservers(UPDATE_JOURNALS_LIST);
     }
+
+    public void updateUserIdeasList() {
+        setChanged();
+        notifyObservers(UPDATE_USER_IDEAS_LIST);
+    }
+
+    public void updateJournalIdeasList() {
+        setChanged();
+        notifyObservers(UPDATE_JOURNAL_IDEAS_LIST);
+    }
+    //endregion
 }

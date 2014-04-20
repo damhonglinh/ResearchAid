@@ -21,6 +21,7 @@ public class JournalIdea implements Serializable {
         this.journal = journal;
         this.text = text;
         this.implication = implication;
+        userIdeas = new HashMap<>();
     }
 
     public static int getCurId() {

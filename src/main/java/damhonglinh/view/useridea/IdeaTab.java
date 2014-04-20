@@ -5,16 +5,17 @@ import damhonglinh.model.JournalIdea;
 import damhonglinh.model.Model;
 import damhonglinh.model.UserIdea;
 import damhonglinh.view.KulButton;
+import damhonglinh.view.UserIdeaJournalIdeaFrame;
+import damhonglinh.view.Utils;
+import damhonglinh.view.journal.JournalTab;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -31,6 +32,8 @@ public class IdeaTab extends JPanel {
     private Box journalIdeaArea;
     private Box addNewArea;
     private JComboBox journals;
+    private UserIdea userIdea;
+    private JLabel title;
 
     public IdeaTab(Model model) {
         this.model = model;
@@ -45,13 +48,29 @@ public class IdeaTab extends JPanel {
         add(center);
 
         journalIdeaArea = new Box(BoxLayout.Y_AXIS);
-        center.add(journalIdeaArea);
+        JScrollPane scroll = new JScrollPane(journalIdeaArea);
+        scroll.getViewport().setBackground(Color.WHITE);
+        scroll.setBorder(null);
+        scroll.getVerticalScrollBar().setUnitIncrement(20);
+        center.add(scroll);
 
-        JLabel title = new JLabel("Supporting Ideas");
+        Box titleLine = new Box(BoxLayout.X_AXIS);
+        titleLine.setBorder(new EmptyBorder(3, 0, 3, 0));
+        titleLine.setOpaque(true);
+        titleLine.setBackground(new Color(235, 235, 235));
+        titleLine.setMaximumSize(new Dimension(5000, 30));
+        titleLine.setPreferredSize(new Dimension(5000, 30));
+        center.add(titleLine, BorderLayout.NORTH);
+
+        JLabel titleTitle = new JLabel("Supporting Ideas ");
+        titleTitle.setFont(new Font("Arial", 0, 14));
+        title = new JLabel("");
         title.setFont(new Font("Arial", 0, 18));
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-        title.setBorder(new EmptyBorder(10, 0, 0, 0));
-        center.add(title, BorderLayout.NORTH);
+
+        titleLine.add(Box.createHorizontalGlue());
+        titleLine.add(titleTitle);
+        titleLine.add(title);
+        titleLine.add(Box.createHorizontalGlue());
 
         drawAddNewArea();
     }
@@ -59,7 +78,9 @@ public class IdeaTab extends JPanel {
     //region drawAddNewArea()
     private void drawAddNewArea() {
         addNewArea = new Box(BoxLayout.Y_AXIS);
-        addNewArea.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, new Color(230, 230, 230)),
+        addNewArea.setOpaque(true);
+        addNewArea.setBackground(new Color(235, 235, 235));
+        addNewArea.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, new Color(200, 200, 200)),
                 new EmptyBorder(7, 10, 15, 7)));
         center.add(addNewArea, BorderLayout.SOUTH);
 
@@ -77,19 +98,19 @@ public class IdeaTab extends JPanel {
 
         Box line2 = new Box(BoxLayout.X_AXIS);
 
-        final JTextArea text = createTextArea(line2, "");
-        text.setToolTipText("Quotation text");
+        final JTextArea text = Utils.createTextArea(line2, "");
+        text.setToolTipText("Journal's words");
 
         line2.add(Box.createHorizontalStrut(3));
-        line2.add(createArrowIcon());
+        line2.add(Utils.createArrowIcon());
         line2.add(Box.createHorizontalStrut(3));
 
-        final JTextArea implication = createTextArea(line2, "");
-        implication.setToolTipText("Your ideas that the text implies");
+        final JTextArea implication = Utils.createTextArea(line2, "");
+        implication.setToolTipText("In your words");
 
         KulButton add = new KulButton("Add", false);
-        add.setPreferredSize(new Dimension(60, 25));
-        add.setMaximumSize(new Dimension(60, 25));
+        add.setPreferredSize(new Dimension(70, 25));
+        add.setMaximumSize(new Dimension(70, 25));
 
         line2.add(Box.createHorizontalStrut(5));
         line2.add(add);
@@ -119,8 +140,18 @@ public class IdeaTab extends JPanel {
                     System.err.println("Journal not found!");
                     JOptionPane.showMessageDialog(IdeaTab.this, "Journal not found!",
                             "Journal not found!", JOptionPane.INFORMATION_MESSAGE);
+                } else if (text.getText().isEmpty()) {
+                    System.err.println("Quotation text cannot be empty!");
+                    JOptionPane.showMessageDialog(IdeaTab.this, "Quotation text cannot be empty!",
+                            "Empty quotation!", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    model.createJournalIdea(journal, text.getText(), implication.getText());
+                    if (implication.getText().isEmpty()) {
+                        implication.setText(text.getText());
+                    }
+                    model.addJournalIdeaToUserIdea(userIdea,
+                            model.createJournalIdea(journal, text.getText(), implication.getText()));
+                    text.setText("");
+                    implication.setText("");
                 }
             }
         });
@@ -129,8 +160,8 @@ public class IdeaTab extends JPanel {
     //endregion
 
     //region drawAllJournalIdeas()
-    private void drawAllJournalIdeas(UserIdea ui) {
-        journalIdeaArea.removeAll();
+    private void drawAllJournalIdeas() {
+        if (userIdea == null) return;
 
         HashMap<Integer, JournalIdea> journalIdeas = model.getJournalIdeas();
         Iterator<Map.Entry<Integer, JournalIdea>> iter = journalIdeas.entrySet().iterator();
@@ -141,83 +172,147 @@ public class IdeaTab extends JPanel {
 
             Iterator<Map.Entry<Integer, UserIdea>> ideas = ji.getUserIdeas().entrySet().iterator();
             while (ideas.hasNext()) {
-                UserIdea uiInLoop = ideas.next().getValue();
-                if (uiInLoop.getId() == ui.getId()) {
+                UserIdea ui = ideas.next().getValue();
+                if (ui.getId() == userIdea.getId()) {
                     drawJournalIdeaLine(ji);
+                    break;
                 }
             }
         }
     }
     //endregion
 
+    //region drawJournalIdeaLine()
     private void drawJournalIdeaLine(final JournalIdea ji) {
-//        int journalIdeaAreaWidth = journalIdeaArea.getWidth();
-        Box line = new Box(BoxLayout.X_AXIS);
+        Box outerLine = new Box(BoxLayout.Y_AXIS);
+        outerLine.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, new Color(215, 215, 215)),
+                new EmptyBorder(7, 7, 7, 7)));
+        outerLine.setMaximumSize(new Dimension(5000, 115));
 
-        final JTextArea text = createTextArea(line, ji.getText());
-//        text.setBackground(Color.WHITE);
-//        text.setEditable(false);
-//        text.setPreferredSize(new Dimension(journalIdeaAreaWidth * 2 / 5, 80));
-//        text.setMaximumSize(new Dimension(journalIdeaAreaWidth * 2 / 5, 80));
+        JLabel journalTitle = new JLabel("Found in journal: ");
+        journalTitle.setFont(new Font("Arial", 0, 14));
 
-        final JTextArea implication = createTextArea(line, ji.getImplication());
-//        text.setBackground(Color.WHITE);
-//        text.setEditable(false);
-//        text.setPreferredSize(new Dimension(journalIdeaAreaWidth * 2 / 5, 80));
-//        text.setMaximumSize(new Dimension(journalIdeaAreaWidth * 2 / 5, 80));
+        JTextField journals = new JTextField(ji.getJournal().getTitle() +
+                ". Author: " + ji.getJournal().getAuthor());
+        journals.setBorder(null);
+        journals.setEditable(false);
+        journals.setBackground(Color.WHITE);
+
+        Box line1 = new Box(BoxLayout.X_AXIS);
+        line1.add(journalTitle);
+        line1.add(Box.createHorizontalStrut(10));
+        line1.add(journals);
+        line1.add(Box.createHorizontalGlue());
+
+        Box line2 = new Box(BoxLayout.X_AXIS);
+
+        final JTextArea text = Utils.createTextArea(line2, ji.getText());
+        text.setToolTipText("Journal's words");
+
+        line2.add(Box.createHorizontalStrut(3));
+        line2.add(Utils.createArrowIcon());
+        line2.add(Box.createHorizontalStrut(3));
+
+        final JTextArea implication = Utils.createTextArea(line2, ji.getImplication());
+        implication.setToolTipText("In your words");
 
         KulButton save = new KulButton("Save", false);
-        save.setPreferredSize(new Dimension(70, 30));
-        save.setMaximumSize(new Dimension(70, 30));
+        save.setToolTipText("Save changed");
+        save.setPreferredSize(new Dimension(70, 23));
+        save.setMaximumSize(new Dimension(70, 23));
 
-        KulButton addTag = new KulButton("Add tag", false);
-        addTag.setPreferredSize(new Dimension(100, 30));
-        addTag.setMaximumSize(new Dimension(100, 30));
+        KulButton tagIdea = new KulButton("Tag Ideas", false);
+        tagIdea.setToolTipText("Tag this journal idea to your ideas");
+        tagIdea.setPreferredSize(new Dimension(70, 23));
+        tagIdea.setMaximumSize(new Dimension(70, 23));
 
-//        line.add(text);
-//        line.add(implication);
-        line.add(save);
-        line.add(addTag);
-    }
+        KulButton delete = new KulButton("Delete", false);
+        delete.setToolTipText("Delete this idea");
+        delete.setPreferredSize(new Dimension(70, 23));
+        delete.setMaximumSize(new Dimension(70, 23));
 
-    //region helper method
-    private JTextArea createTextArea(JComponent parent, String text) {
-        JTextArea textArea = new JTextArea(text, 4, 10);
+        Box butCol = new Box(BoxLayout.Y_AXIS);
+        butCol.setMaximumSize(new Dimension(90, 100));
+        butCol.add(save);
+        butCol.add(Box.createVerticalStrut(4));
+        butCol.add(tagIdea);
+        butCol.add(Box.createVerticalStrut(4));
+        butCol.add(delete);
 
-        JScrollPane scroll = new JScrollPane(textArea);
-        scroll.getViewport().setBackground(Color.WHITE);
-        scroll.setBorder(new LineBorder(new Color(210, 210, 210), 1));
-        scroll.getVerticalScrollBar().setUnitIncrement(20);
+        line2.add(Box.createHorizontalStrut(5));
+        line2.add(butCol);
 
-        parent.add(scroll);
+        outerLine.add(line1);
+        outerLine.add(Box.createVerticalStrut(5));
+        outerLine.add(line2);
 
-        return textArea;
-    }
+        journalIdeaArea.add(outerLine);
+        journalIdeaArea.add(Box.createVerticalStrut(5));
 
-    private JLabel createArrowIcon() {
-        URL imageUrl = this.getClass().getClassLoader().getResource("arrow.png");
-        ImageIcon icon = new ImageIcon(imageUrl);
+        save.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                ji.setText(text.getText());
+                ji.setImplication(implication.getText());
+                model.saveData();
+            }
+        });
 
-        Image img1 = icon.getImage();
-        Image newImg1 = img1.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        JLabel image = new JLabel(new ImageIcon(newImg1));
+        tagIdea.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                new UserIdeaJournalIdeaFrame(model, ji).setVisible(true);
+            }
+        });
 
-        return image;
+        delete.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int input = JOptionPane.showConfirmDialog(IdeaTab.this,
+                        "Delete this idea?", "Delete this idea?", JOptionPane.OK_CANCEL_OPTION);
+                if (input == JOptionPane.OK_OPTION) {
+                    model.deleteJournalIdea(ji);
+                }
+            }
+        });
+
     }
     //endregion
 
+    //region showJournalIdea()
     protected void showJournalIdea(UserIdea ui) {
-        System.out.println("Show idea detailss");
-        drawAllJournalIdeas(ui);
+        System.out.println("Show idea details");
+        title.setText(ui.getName());
+        userIdea = ui;
+        refreshJournalIdeaList();
     }
+    //endregion
 
-    private void refresh() {
-
+    //region refresh()
+    public void refresh() {
         refreshJournalComboBox();
+        refreshJournalIdeaList();
+        refreshUserIdeaList();
     }
+    //endregion
 
-    //region refreshJournalComboBox
-    private void refreshJournalComboBox() {
+    //region refreshUserIdeaList()
+    public void refreshUserIdeaList() {
+        ideaListView.refreshUserList();
+    }
+    //endregion
+
+    //region refreshJournalIdeaList()
+    public void refreshJournalIdeaList() {
+        journalIdeaArea.removeAll();
+        drawAllJournalIdeas();
+        journalIdeaArea.revalidate();
+        journalIdeaArea.repaint();
+    }
+    //endregion
+
+    //region refreshJournalComboBox()
+    public void refreshJournalComboBox() {
         journals.removeAllItems();
         HashMap<Integer, Journal> allJournals = model.getJournals();
         Iterator<Map.Entry<Integer, Journal>> iter = allJournals.entrySet().iterator();
@@ -228,4 +323,8 @@ public class IdeaTab extends JPanel {
         }
     }
     //endregion
+
+    protected UserIdea getUserIdea() {
+        return userIdea;
+    }
 }

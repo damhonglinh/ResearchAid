@@ -106,7 +106,7 @@ public class NewJournalFrame extends JFrame {
     private void add() {
         if (!titleLabel.getText().isEmpty() && !author.getText().isEmpty()) {
             model.createJournal(titleLabel.getText(), author.getText(), reference.getText());
-            model.refreshJournalList();
+            model.updateJournalList();
         }
         NewJournalFrame.this.setVisible(false);
         NewJournalFrame.this.dispose();
