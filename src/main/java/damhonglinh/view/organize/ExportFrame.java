@@ -100,11 +100,17 @@ public class ExportFrame extends JFrame {
         allText.append("----------------\nREFERENCES:\n");
 
         Iterator<Journal> iter = usedJournal.values().iterator();
+        LinkedList<String> references = new LinkedList<>();
         while (iter.hasNext()) {
             Journal j = iter.next();
             if (!j.getReference().isEmpty()) {
-                allText.append(j.getReference());
+                references.add(j.getReference());
             }
+        }
+
+        Collections.sort(references);
+        for (String s : references) {
+            allText.append(s + "\n");
         }
 
         text.setText(allText.toString());
