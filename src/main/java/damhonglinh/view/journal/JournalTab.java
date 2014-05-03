@@ -15,9 +15,7 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Dam Linh
@@ -116,10 +114,15 @@ public class JournalTab extends JPanel {
                     JOptionPane.showMessageDialog(JournalTab.this, "Quotation text cannot be empty!",
                             "Empty quotation!", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    if (implication.getText().isEmpty()) {
-                        implication.setText(text.getText());
+                    String textText = text.getText().replaceAll("\n", " ").replaceAll("\r", " ");
+                    textText = textText.trim().replaceAll(" +", " ");
+
+                    String implicationText = implication.getText();
+
+                    if (implicationText.isEmpty()) {
+                        implicationText = textText;
                     }
-                    model.createJournalIdea(journal, text.getText(), implication.getText());
+                    model.createJournalIdea(journal, textText, implicationText);
                     text.setText("");
                     implication.setText("");
                 }
@@ -154,12 +157,9 @@ public class JournalTab extends JPanel {
     private void drawAllJournalIdeas() {
         if (journal == null) return;
 
-        HashMap<Integer, JournalIdea> journalIdeas = model.getJournalIdeas();
-        Iterator<Map.Entry<Integer, JournalIdea>> iter = journalIdeas.entrySet().iterator();
+        SortedMap<Integer, JournalIdea> keys = new TreeMap<>(model.getJournalIdeas());
 
-        while (iter.hasNext()) {
-            JournalIdea ji = iter.next().getValue();
-
+        for (JournalIdea ji : keys.values()) {
             if (ji.getJournal().getId() == journal.getId()) {
                 drawJournalIdeaLine(ji);
             }

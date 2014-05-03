@@ -13,6 +13,8 @@ public class Utils {
 
     public static JTextArea createTextArea(JComponent parent, String text) {
         JTextArea textArea = new JTextArea(text, 4, 10);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
 
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.getViewport().setBackground(Color.WHITE);

@@ -12,9 +12,7 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Dam Linh
@@ -71,13 +69,9 @@ public class JournalListView extends JPanel {
     }
 
     private void drawAllJournals() {
-        HashMap<Integer, Journal> journals = model.getJournals();
-        Iterator<Map.Entry<Integer, Journal>> iter = journals.entrySet().iterator();
+        SortedMap<Integer, Journal> keys = new TreeMap<>(model.getJournals());
 
-        while (iter.hasNext()) {
-            Map.Entry<Integer, Journal> entry = iter.next();
-
-            final Journal j = entry.getValue();
+        for (final Journal j : keys.values()) {
             final JTextArea label = createTextArea(center, j.getTitle() + ". Author: " + j.getAuthor());
 
             label.addMouseListener(new MouseAdapter() {
@@ -106,12 +100,49 @@ public class JournalListView extends JPanel {
                 }
             });
         }
+
+//        HashMap<Integer, Journal> journals = model.getJournals();
+//        Iterator<Map.Entry<Integer, Journal>> iter = journals.entrySet().iterator();
+//        while (iter.hasNext()) {
+//            Map.Entry<Integer, Journal> entry = iter.next();
+//
+//            final Journal j = entry.getValue();
+//            final JTextArea label = createTextArea(center, j.getTitle() + ". Author: " + j.getAuthor());
+//
+//            label.addMouseListener(new MouseAdapter() {
+//                @Override
+//                public void mousePressed(MouseEvent e) {
+//                    if (SwingUtilities.isLeftMouseButton(e)) {
+//                        journalTab.showJournalIdea(j);
+//                    } else if (SwingUtilities.isRightMouseButton(e)) {
+//                        int input = JOptionPane.showConfirmDialog(JournalListView.this,
+//                                "Delete this journal?", "Delete this journal? " +
+//                                "All ideas of this journal will be deleted forever!!!", JOptionPane.OK_CANCEL_OPTION);
+//                        if (input == JOptionPane.OK_OPTION) {
+//                            model.deleteJournal(j);
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void mouseEntered(MouseEvent e) {
+//                    label.setBorder(new LineBorder(new Color(230, 230, 230)));
+//                }
+//
+//                @Override
+//                public void mouseExited(MouseEvent e) {
+//                    label.setBorder(new EmptyBorder(1, 1, 1, 1));
+//                }
+//            });
+//        }
     }
 
     //region helper method
     private JTextArea createTextArea(JComponent parent, String text) {
         JTextArea textArea = new JTextArea(text, 3, 10);
         textArea.setEditable(false);
+        textArea.setWrapStyleWord(true);
+        textArea.setLineWrap(true);
 
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.getViewport().setBackground(Color.WHITE);

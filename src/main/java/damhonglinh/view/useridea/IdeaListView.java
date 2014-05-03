@@ -12,9 +12,7 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Dam Linh
@@ -71,13 +69,9 @@ public class IdeaListView extends JPanel {
     }
 
     private void addAllIdea() {
-        HashMap<Integer, UserIdea> ideas = model.getUserIdeas();
-        Iterator<Map.Entry<Integer, UserIdea>> iter = ideas.entrySet().iterator();
+        SortedMap<Integer, UserIdea> keys = new TreeMap<>(model.getUserIdeas());
 
-        while (iter.hasNext()) {
-            Map.Entry<Integer, UserIdea> entry = iter.next();
-
-            final UserIdea ui = entry.getValue();
+        for (final UserIdea ui : keys.values()) {
             final JTextArea label = createTextArea(center, ui.getName());
 
             label.addMouseListener(new MouseAdapter() {
@@ -106,6 +100,42 @@ public class IdeaListView extends JPanel {
                 }
             });
         }
+
+//        HashMap<Integer, UserIdea> ideas = model.getUserIdeas();
+//        Iterator<Map.Entry<Integer, UserIdea>> iter = ideas.entrySet().iterator();
+//
+//        while (iter.hasNext()) {
+//            Map.Entry<Integer, UserIdea> entry = iter.next();
+//
+//            final UserIdea ui = entry.getValue();
+//            final JTextArea label = createTextArea(center, ui.getName());
+//
+//            label.addMouseListener(new MouseAdapter() {
+//                @Override
+//                public void mousePressed(MouseEvent e) {
+//                    if (SwingUtilities.isLeftMouseButton(e)) {
+//                        ideaTab.showJournalIdea(ui);
+//                    } else if (SwingUtilities.isRightMouseButton(e)) {
+//                        int input = JOptionPane.showConfirmDialog(IdeaListView.this,
+//                                "Delete this idea tag?", "Delete this idea tag?", JOptionPane.OK_CANCEL_OPTION);
+//                        if (input == JOptionPane.OK_OPTION) {
+//                            model.deleteUserIdea(ui);
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void mouseEntered(MouseEvent e) {
+//                    label.setBorder(new LineBorder(new Color(230, 230, 230)));
+//                }
+//
+//                @Override
+//                public void mouseExited(MouseEvent e) {
+////                    if (ideaTab.getUserIdea() != null && ideaTab.getUserIdea().getId() == ui.getId()) return;
+//                    label.setBorder(new EmptyBorder(1, 1, 1, 1));
+//                }
+//            });
+//        }
     }
 
     //region helper method

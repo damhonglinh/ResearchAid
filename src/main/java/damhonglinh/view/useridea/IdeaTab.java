@@ -7,7 +7,6 @@ import damhonglinh.model.UserIdea;
 import damhonglinh.view.KulButton;
 import damhonglinh.view.UserIdeaJournalIdeaFrame;
 import damhonglinh.view.Utils;
-import damhonglinh.view.journal.JournalTab;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -16,9 +15,7 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Dam Linh
@@ -163,13 +160,26 @@ public class IdeaTab extends JPanel {
     private void drawAllJournalIdeas() {
         if (userIdea == null) return;
 
-        HashMap<Integer, JournalIdea> journalIdeas = model.getJournalIdeas();
-        Iterator<Map.Entry<Integer, JournalIdea>> iter = journalIdeas.entrySet().iterator();
+//        HashMap<Integer, JournalIdea> journalIdeas = model.getJournalIdeas();
+//        Iterator<Map.Entry<Integer, JournalIdea>> iter = journalIdeas.entrySet().iterator();
+//
+//        while (iter.hasNext()) {
+//            Map.Entry<Integer, JournalIdea> entry = iter.next();
+//            JournalIdea ji = entry.getValue();
+//
+//            Iterator<Map.Entry<Integer, UserIdea>> ideas = ji.getUserIdeas().entrySet().iterator();
+//            while (ideas.hasNext()) {
+//                UserIdea ui = ideas.next().getValue();
+//                if (ui.getId() == userIdea.getId()) {
+//                    drawJournalIdeaLine(ji);
+//                    break;
+//                }
+//            }
+//        }
 
-        while (iter.hasNext()) {
-            Map.Entry<Integer, JournalIdea> entry = iter.next();
-            JournalIdea ji = entry.getValue();
+        SortedMap<Integer, JournalIdea> keys = new TreeMap<>(model.getJournalIdeas());
 
+        for (JournalIdea ji : keys.values()) {
             Iterator<Map.Entry<Integer, UserIdea>> ideas = ji.getUserIdeas().entrySet().iterator();
             while (ideas.hasNext()) {
                 UserIdea ui = ideas.next().getValue();
