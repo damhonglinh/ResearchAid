@@ -3,6 +3,7 @@ package damhonglinh.view;
 import damhonglinh.model.JournalIdea;
 import damhonglinh.model.Model;
 import damhonglinh.model.UserIdea;
+import damhonglinh.view.useridea.NewUserIdeaFrame;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -24,11 +25,12 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
     private Box container;
     private JLabel title;
     private Box center;
-    private JComboBox<String> newUserIdea;
+    //    private JComboBox<String> newUserIdea;
     private KulButton add;
     private Model model;
-    private Box addLine;
+    private Box addArea;
     private JScrollPane scroll;
+    private JScrollPane addAreaScroll;
     private JournalIdea journalIdea;
 
     public UserIdeaJournalIdeaFrame(Model model, JournalIdea journalIdea) {
@@ -61,9 +63,37 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
         scroll.getVerticalScrollBar().setUnitIncrement(20);
         container.add(scroll);
 
+        addArea = new Box(BoxLayout.Y_AXIS);
+//        addArea.setMaximumSize(new Dimension(5000, 300));
+        addAreaScroll = new JScrollPane(addArea);
+        addAreaScroll.getViewport().setBackground(Color.WHITE);
+        addAreaScroll.setBorder(null);
+        addAreaScroll.getVerticalScrollBar().setUnitIncrement(20);
+        addAreaScroll.setMaximumSize(new Dimension(5000, 300));
+        container.add(addAreaScroll);
+
         container.add(Box.createVerticalStrut(12));
-        drawAddLine();
+        drawUserIdeaTagArea();
         drawAllUserIdea();
+
+
+        KulButton addUi = new KulButton("Add user idea", false);
+        addUi.setFont(new Font("Arial", 0, 14));
+        addUi.setPreferredSize(new Dimension(100, 30));
+        addUi.setMaximumSize(new Dimension(100, 30));
+        addUi.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                new NewUserIdeaFrame(UserIdeaJournalIdeaFrame.this.model).setVisible(true);
+            }
+        });
+        Box addLine = new Box(BoxLayout.X_AXIS);
+        addLine.setMaximumSize(new Dimension(5000, 35));
+        addLine.add(Box.createHorizontalGlue());
+        addLine.add(addUi);
+        addLine.add(Box.createHorizontalGlue());
+
+        container.add(addLine);
 
         getRootPane().setFocusable(false);
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), "exit");
@@ -121,57 +151,67 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
     //region refresh()
     private void refresh() {
         center.removeAll();
+        addArea.removeAll();
         drawAllUserIdea();
+        drawUserIdeaTagArea();
+        addArea.revalidate();
+        addArea.repaint();
         center.revalidate();
         center.repaint();
     }
     //endregion
 
-    //region drawAddLine()
-    private void drawAddLine() {
-        addLine = new Box(BoxLayout.X_AXIS);
-        addLine.setMaximumSize(new Dimension(5000, 30));
-        container.add(addLine);
-
-        newUserIdea = new JComboBox<>();
+    //region drawUserIdeaTagArea()
+    private void drawUserIdeaTagArea() {
+//        newUserIdea = new JComboBox<>();
         Iterator<Map.Entry<Integer, UserIdea>> iter = model.getUserIdeas().entrySet().iterator();
 
         while (iter.hasNext()) {
-            Map.Entry<Integer, UserIdea> entry = iter.next();
-            newUserIdea.addItem(entry.getValue().getName());
+            final Map.Entry<Integer, UserIdea> entry = iter.next();
+//            newUserIdea.addItem(entry.getValue().getName());
+
+            Box uiLine = new Box(BoxLayout.X_AXIS);
+            uiLine.setMaximumSize(new Dimension(5000, 24));
+
+            JTextField uiText = new JTextField(entry.getValue().getName(), 20);
+            uiText.setEditable(false);
+            uiText.setBorder(null);
+
+            KulButton tag = new KulButton("Tag", false);
+            tag.setFont(new Font("Arial", 0, 12));
+            tag.setPreferredSize(new Dimension(70, 20));
+            tag.setMaximumSize(new Dimension(70, 20));
+            tag.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    add(entry.getValue());
+                }
+            });
+
+            uiLine.add(uiText);
+            uiLine.add(Box.createHorizontalGlue());
+            uiLine.add(tag);
+
+            addArea.add(uiLine);
+            addArea.add(Box.createVerticalStrut(7));
         }
-
-        add = new KulButton("Add", false);
-        add.setFont(new Font("Arial", 0, 14));
-        add.setPreferredSize(new Dimension(100, 30));
-        add.setMaximumSize(new Dimension(100, 30));
-        add.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                add();
-            }
-        });
-
-        addLine.add(newUserIdea);
-        addLine.add(Box.createHorizontalStrut(5));
-        addLine.add(add);
     }
     //endregion
 
     //region add()
-    private void add() {
-        UserIdea ui = null;
-        Iterator<Map.Entry<Integer, UserIdea>> iter = model.getUserIdeas().entrySet().iterator();
-
-        int counter = 0;
-        while (iter.hasNext()) {
-            Map.Entry<Integer, UserIdea> entry = iter.next();
-            if (newUserIdea.getSelectedIndex() == counter) {
-                ui = entry.getValue();
-                break;
-            }
-            counter++;
-        }
+    private void add(UserIdea ui) {
+//        UserIdea ui = null;
+//        Iterator<Map.Entry<Integer, UserIdea>> iter = model.getUserIdeas().entrySet().iterator();
+//
+//        int counter = 0;
+//        while (iter.hasNext()) {
+//            Map.Entry<Integer, UserIdea> entry = iter.next();
+//            if (newUserIdea.getSelectedIndex() == counter) {
+//                ui = entry.getValue();
+//                break;
+//            }
+//            counter++;
+//        }
 
         if (ui == null) {
             System.err.println("User Idea not found!");
