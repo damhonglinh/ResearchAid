@@ -148,8 +148,8 @@ public class JournalListView extends JPanel {
         scroll.getViewport().setBackground(Color.WHITE);
         scroll.getVerticalScrollBar().setUnitIncrement(20);
         scroll.setBorder(null);
-        scroll.setMinimumSize(new Dimension(50, 150));
-        scroll.setPreferredSize(new Dimension(50, 150));
+        scroll.setMinimumSize(new Dimension(50, 120));
+        scroll.setPreferredSize(new Dimension(50, 120));
 
         parent.add(scroll);
 

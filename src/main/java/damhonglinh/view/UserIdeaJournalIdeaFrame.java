@@ -64,7 +64,7 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
         container.add(scroll);
 
         addArea = new Box(BoxLayout.Y_AXIS);
-//        addArea.setMaximumSize(new Dimension(5000, 300));
+//        addAreaScroll.setMaximumSize(new Dimension(5000, 300));
         addAreaScroll = new JScrollPane(addArea);
         addAreaScroll.getViewport().setBackground(Color.WHITE);
         addAreaScroll.setBorder(null);
@@ -76,7 +76,7 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
         drawUserIdeaTagArea();
         drawAllUserIdea();
 
-
+        //region addLine
         KulButton addUi = new KulButton("Add user idea", false);
         addUi.setFont(new Font("Arial", 0, 14));
         addUi.setPreferredSize(new Dimension(100, 30));
@@ -92,8 +92,8 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
         addLine.add(Box.createHorizontalGlue());
         addLine.add(addUi);
         addLine.add(Box.createHorizontalGlue());
-
         container.add(addLine);
+        //endregion
 
         getRootPane().setFocusable(false);
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), "exit");
@@ -120,16 +120,16 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
     //region drawEachUserIdea()
     private void drawEachUserIdea(final UserIdea ui) {
         Box line = new Box(BoxLayout.X_AXIS);
-        line.setMaximumSize(new Dimension(5000, 30));
+        line.setMaximumSize(new Dimension(5000, 80));
 
-        JTextArea text = new JTextArea(ui.getName());
+        JTextArea text = Utils.createTextArea(line, ui.getName());
         text.setEditable(false);
         text.setBackground(Color.WHITE);
         text.setBorder(null);
 
         KulButton remove = new KulButton("Remove", false);
-        remove.setPreferredSize(new Dimension(100, 30));
-        remove.setMaximumSize(new Dimension(100, 30));
+        remove.setPreferredSize(new Dimension(80, 25));
+        remove.setMaximumSize(new Dimension(80, 25));
         remove.setFont(new Font("Arial", 0, 14));
         remove.addMouseListener(new MouseAdapter() {
             @Override
@@ -139,7 +139,6 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
             }
         });
 
-        line.add(text);
         line.add(Box.createHorizontalStrut(5));
         line.add(remove);
 
@@ -163,12 +162,10 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
 
     //region drawUserIdeaTagArea()
     private void drawUserIdeaTagArea() {
-//        newUserIdea = new JComboBox<>();
         Iterator<Map.Entry<Integer, UserIdea>> iter = model.getUserIdeas().entrySet().iterator();
 
         while (iter.hasNext()) {
             final Map.Entry<Integer, UserIdea> entry = iter.next();
-//            newUserIdea.addItem(entry.getValue().getName());
 
             Box uiLine = new Box(BoxLayout.X_AXIS);
             uiLine.setMaximumSize(new Dimension(5000, 24));
@@ -179,8 +176,8 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
 
             KulButton tag = new KulButton("Tag", false);
             tag.setFont(new Font("Arial", 0, 12));
-            tag.setPreferredSize(new Dimension(70, 20));
-            tag.setMaximumSize(new Dimension(70, 20));
+            tag.setPreferredSize(new Dimension(60, 20));
+            tag.setMaximumSize(new Dimension(60, 20));
             tag.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -188,9 +185,9 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
                 }
             });
 
-            uiLine.add(uiText);
-            uiLine.add(Box.createHorizontalGlue());
             uiLine.add(tag);
+            uiLine.add(Box.createHorizontalStrut(10));
+            uiLine.add(uiText);
 
             addArea.add(uiLine);
             addArea.add(Box.createVerticalStrut(7));

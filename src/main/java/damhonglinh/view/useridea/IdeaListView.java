@@ -142,13 +142,15 @@ public class IdeaListView extends JPanel {
     private JTextArea createTextArea(JComponent parent, String text) {
         JTextArea textArea = new JTextArea(text, 3, 10);
         textArea.setEditable(false);
+        textArea.setWrapStyleWord(true);
+        textArea.setLineWrap(true);
 
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.getViewport().setBackground(Color.WHITE);
         scroll.getVerticalScrollBar().setUnitIncrement(20);
         scroll.setBorder(null);
-        scroll.setMinimumSize(new Dimension(50, 150));
-        scroll.setPreferredSize(new Dimension(50, 150));
+        scroll.setMinimumSize(new Dimension(50, 60));
+        scroll.setPreferredSize(new Dimension(50, 60));
 
         parent.add(scroll);
 
