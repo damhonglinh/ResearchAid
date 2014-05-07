@@ -85,11 +85,17 @@ public class ExportFrame extends JFrame {
             UserIdea ui = uib.getUserIdea();
             allText.append("* " + ui.getName() + "\n");
 
-            Iterator<JournalIdea> iter = model.getJournalIdeas().values().iterator();
-            while (iter.hasNext()) {
-                JournalIdea ji = iter.next();
+
+            SortedMap<Integer, JournalIdea> keys = new TreeMap<>(model.getJournalIdeas());
+
+            for (JournalIdea ji : keys.values()) {
                 if (ji.getUserIdeas().containsKey(ui.getId())) {
-                    allText.append("\t+ " + ji.getImplication() + "(" + ji.getJournal().getAuthor() + ")\n");
+                    String exactQuote = "";
+                    if (!ji.getImplication().equals(ji.getText())) {
+                        exactQuote = "\n\t\tExact text: >" + ji.getText() + "<";
+                    }
+                    allText.append("\t+ " + ji.getImplication()
+                            + exactQuote + "(" + ji.getJournal().getAuthor() + ")\n");
                     usedJournal.put(ji.getJournal().getId(), ji.getJournal());
                 }
             }
