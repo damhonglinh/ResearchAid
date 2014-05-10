@@ -24,26 +24,28 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
 
     private Box container;
     private JLabel title;
-    private Box center;
-    //    private JComboBox<String> newUserIdea;
-    private KulButton add;
+    private Box userIdeaTagArea;
     private Model model;
-    private Box addArea;
-    private JScrollPane scroll;
-    private JScrollPane addAreaScroll;
+    private Box taggingArea;
+    private JScrollPane userIdeaTagAreaScroll;
+    private JScrollPane taggingAreaScroll;
     private JournalIdea journalIdea;
+    private int thisWidth = 1024;
+    private int thisHeight;
 
     public UserIdeaJournalIdeaFrame(Model model, JournalIdea journalIdea) {
         this.model = model;
         this.journalIdea = journalIdea;
 
-        setSize(new Dimension(600, 600));
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(getGraphicsConfiguration());
+        setSize(new Dimension(thisWidth, thisHeight = screenSize.height - screenInsets.bottom));
         setUndecorated(true);
         setResizable(false);
         setTitle("Idea Tags");
         setLocationRelativeTo(null);
 
-        container = new Box(BoxLayout.Y_AXIS);
+        container = new Box(BoxLayout.X_AXIS);
         container.setOpaque(true);
         container.setBorder(new CompoundBorder(
                 new LineBorder(new Color(222, 184, 135), 4),
@@ -51,49 +53,25 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
         container.setBackground(Color.WHITE);
         add(container);
 
-        title = new JLabel("Idea tags");
-        title.setFont(new Font("Arial", 0, 28));
+        userIdeaTagArea = new Box(BoxLayout.Y_AXIS);
+        userIdeaTagAreaScroll = new JScrollPane(userIdeaTagArea);
+        userIdeaTagAreaScroll.getViewport().setBackground(Color.WHITE);
+        userIdeaTagAreaScroll.setBorder(null);
+        userIdeaTagAreaScroll.getVerticalScrollBar().setUnitIncrement(20);
+        container.add(userIdeaTagAreaScroll);
 
-        container.add(title);
+        container.add(Box.createHorizontalStrut(12));
 
-        center = new Box(BoxLayout.Y_AXIS);
-        scroll = new JScrollPane(center);
-        scroll.getViewport().setBackground(Color.WHITE);
-        scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(20);
-        container.add(scroll);
+        taggingArea = new Box(BoxLayout.Y_AXIS);
+        taggingAreaScroll = new JScrollPane(taggingArea);
+//        taggingAreaScroll.setMaximumSize(new Dimension(thisWidth / 2, thisHeight));
+        taggingAreaScroll.getViewport().setBackground(Color.WHITE);
+        taggingAreaScroll.setBorder(null);
+        taggingAreaScroll.getVerticalScrollBar().setUnitIncrement(20);
+        container.add(taggingAreaScroll);
 
-        addArea = new Box(BoxLayout.Y_AXIS);
-//        addAreaScroll.setMaximumSize(new Dimension(5000, 300));
-        addAreaScroll = new JScrollPane(addArea);
-        addAreaScroll.getViewport().setBackground(Color.WHITE);
-        addAreaScroll.setBorder(null);
-        addAreaScroll.getVerticalScrollBar().setUnitIncrement(20);
-        addAreaScroll.setMaximumSize(new Dimension(5000, 300));
-        container.add(addAreaScroll);
-
-        container.add(Box.createVerticalStrut(12));
         drawUserIdeaTagArea();
         drawAllUserIdea();
-
-        //region addLine
-        KulButton addUi = new KulButton("Add user idea", false);
-        addUi.setFont(new Font("Arial", 0, 14));
-        addUi.setPreferredSize(new Dimension(100, 30));
-        addUi.setMaximumSize(new Dimension(100, 30));
-        addUi.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                new NewUserIdeaFrame(UserIdeaJournalIdeaFrame.this.model).setVisible(true);
-            }
-        });
-        Box addLine = new Box(BoxLayout.X_AXIS);
-        addLine.setMaximumSize(new Dimension(5000, 35));
-        addLine.add(Box.createHorizontalGlue());
-        addLine.add(addUi);
-        addLine.add(Box.createHorizontalGlue());
-        container.add(addLine);
-        //endregion
 
         getRootPane().setFocusable(false);
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), "exit");
@@ -107,8 +85,11 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
     }
 
     private void drawAllUserIdea() {
-        Iterator<Map.Entry<Integer, UserIdea>> iter = model.getUserIdeas().entrySet().iterator();
+        title = new JLabel("Idea tags");
+        title.setFont(new Font("Arial", 0, 28));
+        userIdeaTagArea.add(title);
 
+        Iterator<Map.Entry<Integer, UserIdea>> iter = model.getUserIdeas().entrySet().iterator();
         while (iter.hasNext()) {
             UserIdea ui = iter.next().getValue();
             if (journalIdea.getUserIdeas().containsKey(ui.getId())) {
@@ -142,21 +123,21 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
         line.add(Box.createHorizontalStrut(5));
         line.add(remove);
 
-        center.add(line);
-        center.add(Box.createVerticalStrut(10));
+        userIdeaTagArea.add(line);
+        userIdeaTagArea.add(Box.createVerticalStrut(10));
     }
     //endregion
 
     //region refresh()
     private void refresh() {
-        center.removeAll();
-        addArea.removeAll();
+        userIdeaTagArea.removeAll();
+        taggingArea.removeAll();
         drawAllUserIdea();
         drawUserIdeaTagArea();
-        addArea.revalidate();
-        addArea.repaint();
-        center.revalidate();
-        center.repaint();
+        taggingArea.revalidate();
+        taggingArea.repaint();
+        userIdeaTagArea.revalidate();
+        userIdeaTagArea.repaint();
     }
     //endregion
 
@@ -189,27 +170,34 @@ public class UserIdeaJournalIdeaFrame extends JFrame {
             uiLine.add(Box.createHorizontalStrut(10));
             uiLine.add(uiText);
 
-            addArea.add(uiLine);
-            addArea.add(Box.createVerticalStrut(7));
+            taggingArea.add(uiLine);
+            taggingArea.add(Box.createVerticalStrut(7));
         }
+
+
+        //region addLine
+        KulButton addUi = new KulButton("Add user idea", false);
+        addUi.setFont(new Font("Arial", 0, 14));
+        addUi.setPreferredSize(new Dimension(100, 30));
+        addUi.setMaximumSize(new Dimension(100, 30));
+        addUi.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                new NewUserIdeaFrame(UserIdeaJournalIdeaFrame.this.model).setVisible(true);
+            }
+        });
+//        Box addLine = new Box(BoxLayout.X_AXIS);
+//        addLine.setMaximumSize(new Dimension(5000, 35));
+//        addLine.add(Box.createHorizontalGlue());
+//        addLine.add(addUi);
+//        addLine.add(Box.createHorizontalGlue());
+        taggingArea.add(addUi);
+        //endregion
     }
     //endregion
 
     //region add()
     private void add(UserIdea ui) {
-//        UserIdea ui = null;
-//        Iterator<Map.Entry<Integer, UserIdea>> iter = model.getUserIdeas().entrySet().iterator();
-//
-//        int counter = 0;
-//        while (iter.hasNext()) {
-//            Map.Entry<Integer, UserIdea> entry = iter.next();
-//            if (newUserIdea.getSelectedIndex() == counter) {
-//                ui = entry.getValue();
-//                break;
-//            }
-//            counter++;
-//        }
-
         if (ui == null) {
             System.err.println("User Idea not found!");
             JOptionPane.showMessageDialog(this, "User idea not found!",

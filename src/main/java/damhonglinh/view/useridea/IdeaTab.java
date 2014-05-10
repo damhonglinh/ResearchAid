@@ -4,6 +4,7 @@ import damhonglinh.model.Journal;
 import damhonglinh.model.JournalIdea;
 import damhonglinh.model.Model;
 import damhonglinh.model.UserIdea;
+import damhonglinh.view.JournalIdeaDetailFrame;
 import damhonglinh.view.KulButton;
 import damhonglinh.view.UserIdeaJournalIdeaFrame;
 import damhonglinh.view.Utils;
@@ -142,11 +143,24 @@ public class IdeaTab extends JPanel {
                     JOptionPane.showMessageDialog(IdeaTab.this, "Quotation text cannot be empty!",
                             "Empty quotation!", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    if (implication.getText().isEmpty()) {
-                        implication.setText(text.getText());
+//                    if (implication.getText().isEmpty()) {
+//                        implication.setText(text.getText());
+//                    }
+//                    model.addJournalIdeaToUserIdea(userIdea,
+//                            model.createJournalIdea(journal, text.getText(), implication.getText()));
+//                    text.setText("");
+//                    implication.setText("");
+
+                    String textText = text.getText().replaceAll("\n", " ").replaceAll("\r", " ");
+                    textText = textText.trim().replaceAll(" +", " ");
+
+                    String implicationText = implication.getText();
+
+                    if (implicationText.isEmpty()) {
+                        implicationText = textText;
                     }
                     model.addJournalIdeaToUserIdea(userIdea,
-                            model.createJournalIdea(journal, text.getText(), implication.getText()));
+                            model.createJournalIdea(journal, textText, implicationText));
                     text.setText("");
                     implication.setText("");
                 }
@@ -159,23 +173,6 @@ public class IdeaTab extends JPanel {
     //region drawAllJournalIdeas()
     private void drawAllJournalIdeas() {
         if (userIdea == null) return;
-
-//        HashMap<Integer, JournalIdea> journalIdeas = model.getJournalIdeas();
-//        Iterator<Map.Entry<Integer, JournalIdea>> iter = journalIdeas.entrySet().iterator();
-//
-//        while (iter.hasNext()) {
-//            Map.Entry<Integer, JournalIdea> entry = iter.next();
-//            JournalIdea ji = entry.getValue();
-//
-//            Iterator<Map.Entry<Integer, UserIdea>> ideas = ji.getUserIdeas().entrySet().iterator();
-//            while (ideas.hasNext()) {
-//                UserIdea ui = ideas.next().getValue();
-//                if (ui.getId() == userIdea.getId()) {
-//                    drawJournalIdeaLine(ji);
-//                    break;
-//                }
-//            }
-//        }
 
         SortedMap<Integer, JournalIdea> keys = new TreeMap<>(model.getJournalIdeas());
 
@@ -220,7 +217,16 @@ public class IdeaTab extends JPanel {
         text.setToolTipText("Journal's words");
 
         line2.add(Box.createHorizontalStrut(3));
-        line2.add(Utils.createArrowIcon());
+
+        JLabel arrowIcon = Utils.createArrowIcon();
+        arrowIcon.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                new JournalIdeaDetailFrame(model, ji).setVisible(true);
+            }
+        });
+
+        line2.add(arrowIcon);
         line2.add(Box.createHorizontalStrut(3));
 
         final JTextArea implication = Utils.createTextArea(line2, ji.getImplication());
